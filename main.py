@@ -16,20 +16,25 @@ def leEntrada():
 
 def popular_vetor_c(matrizIncidencia):
     """
-    O vetor c da PL é igual à linha relativa ao vértice "s" na matriz de incidência
+    O vetor c da PL é igual à linha relativa ao vértice "s" na matriz de incidência acrescentado do mesmo
+    número de zeros, efetivamente dobrando o tamanho da linha
     """
-    return matrizIncidencia[0]
+    c = matrizIncidencia[0]
+    c = np.concatenate((c,np.zeros(c.shape[0])), axis=0)
+    return c
 
 def popular_matriz_restricoes(matriz_incidencia):
     """A matriz de restrições é formada por todas as linhas da matriz_incidencia
-    relativas a vértices que não sejam de "s" e nem de "t" além de ter uma matriz 
+    relativas a vértices que não sejam de "s" e nem de "t" completadas com 0's além de ter duas matrizes 
     identidade do tamanho do número de arestas
-    |  M  | 
-    |  I  |
+    |  M  0  | 
+    |  I  I  |
     """
     linhas_vertices = matriz_incidencia[1:-1].copy()
+    linhas_vertices = np.concatenate((linhas_vertices, np.zeros_like(linhas_vertices)), axis=1)
     num_arestas = matriz_incidencia.shape[1]
-    restricoes = np.concatenate((linhas_vertices, np.identity(num_arestas)), axis=0)
+    identidades = np.concatenate((np.identity(num_arestas), np.identity(num_arestas)), axis = 1)
+    restricoes = np.concatenate((linhas_vertices, identidades), axis=0)
     return restricoes
 
 def popular_vetor_b(num_vertices_intermediarios, capacidades):
@@ -54,12 +59,11 @@ def main():
     print("Vetor b gerado:\n{}".format(b))
 
     """
-    #popular b
     my_simplex = Simplex(c,b,restricoes)
-    my_simplex.resolver()
+    my_simplex.resolver(False)
     my_simplex.imprimeResultado()
     """
-   
+    
     
 if __name__ == '__main__':
     main()
