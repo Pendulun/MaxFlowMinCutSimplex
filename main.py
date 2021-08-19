@@ -15,13 +15,31 @@ def leEntrada():
     return capacidades,matriz_incidencia
 
 def popular_vetor_c(matrizIncidencia):
+    """
+    O vetor c da PL é igual à linha relativa ao vértice "s" na matriz de incidência
+    """
     return matrizIncidencia[0]
+
+def popular_matriz_restricoes(matriz_incidencia):
+    """A matriz de restrições é formada por todas as linhas da matriz_incidencia
+    relativas a vértices que não sejam de "s" e nem de "t" além de ter uma matriz 
+    identidade do tamanho do número de arestas
+    """
+    linhas_vertices = matriz_incidencia[1:-1].copy()
+    num_arestas = matriz_incidencia.shape[1]
+    restricoes = np.concatenate((linhas_vertices, np.identity(num_arestas)), axis=0)
+    return restricoes
+
 
 def main():
     
     capacidades,matriz_incidencia=leEntrada()
     c = popular_vetor_c(matriz_incidencia)
+    #popular matriz restricoes
+    restricoes = popular_matriz_restricoes(matriz_incidencia)
     #popular vetor b
+    #Vetor b é formado por 1 para 
+    
 
     """
     #popular b
