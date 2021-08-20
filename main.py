@@ -48,7 +48,7 @@ def popular_vetor_b(num_vertices_intermediarios, capacidades):
     b = np.concatenate((vetor_uns, capacidades), axis = 0)
     return b
 
-def produzVetorMinCut(certifcado, numVertices):
+def produzVetorMinCut(certificado, numVertices):
     """
     O vértice 's' com certeza faz parte do corte mínimo. O vértice 't' com certeza não faz.
     Sendo 'n' o número de vértices != {s,t}, os 'n' primeiros números do certificado de otimalidade
@@ -57,7 +57,8 @@ def produzVetorMinCut(certifcado, numVertices):
     """
     min_cut = np.zeros(numVertices)
     min_cut[0] = 1
-    min_cut[1:-1] = certifcado[:numVertices-2]
+    if numVertices-2 > 0 and min_cut.shape[0] > 2:
+        min_cut[1:-1] = certificado[:numVertices-2]
     return min_cut
 
 def main():
