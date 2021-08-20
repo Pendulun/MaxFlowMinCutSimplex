@@ -1,3 +1,4 @@
+from tableaux import Tableaux
 from tableauxAux import TableauxAux
 import numpy as np
 from maxPL import PL
@@ -6,10 +7,15 @@ from tableauxPLAuxSolver import TableauxPLAuxSolver
 
 class Simplex():
     """
-    Essa classe tem o objetivo de ser um Solver para PL's no seguinte formato:
+    Essa classe tem o objetivo de ser um Solver para PL's nos seguintes formatos:
     max c_T*X
     sujeito a AX <= b e X>=0
-    aplicando  o algoritmo Simplex
+
+    e 
+    max c_T*X
+    sujeito a AX = B X >=0
+    aplicando  o algoritmo Simplex. Para escolher entre os dois tipos de PL, o parâmetro bool
+    'colocarEmFPI' do método resolver deve ser indicado corretamente
     """
     OTIMA = "otima"
     INVIAVEL = "inviavel"
@@ -22,18 +28,28 @@ class Simplex():
         self.__pl = PL(c,b,restricoes)
         self.__estadoFinal = ""
 
-    def resolver(self):
-        
-        plEmFPI = self.__colocaPLEmFPI(self.__pl)
-
-        tableauxAuxSolver = self._resolvePLAux(plEmFPI)
-        tableaux_aux = tableauxAuxSolver.resolver()
-
-        if tableaux_aux.resultadoTornaPLOriginalViavel():
+    def _getPL(self, estaEmFPI):
+        if not estaEmFPI:
+            return self.__colocaPLEmFPI(self.__pl)
+        else:
+            return self.__pl
             
-            tableaux_parte_2 = tableauxAuxSolver.get_tableaux_segunda_parte()
+    def resolver(self, estaEmFPI):
+        
+        pl = self._getPL(estaEmFPI)
+        if not estaEmFPI:
+            tableauxAuxSolver = self._resolvePLAux(pl, estaEmFPI)
+            tableaux_aux = tableauxAuxSolver.resolver()
 
-            tableaux_pl = self.__gerarTableauxResolvido(tableaux_parte_2)
+        if estaEmFPI or tableaux_aux.resultadoTornaPLOriginalViavel():
+            tableaux_parte_2 = ""
+            if not estaEmFPI:
+                tableaux_parte_2 = tableauxAuxSolver.get_tableaux_segunda_parte()
+            else:
+                tableaux_parte_2 = Tableaux()
+                tableaux_parte_2.setPL(pl)
+            tableaux_pl = self.__gerarTableauxResolvido(tableaux_parte_2, estaEmFPI)
+            #tableaux_pl.imprimirTudo()
 
             if tableaux_pl.isOtima():
                 self.__estadoFinal = self.OTIMA
@@ -60,12 +76,12 @@ class Simplex():
     def __geraMatrizIdentidade(self, tam):
         return np.identity(tam)
 
-    def _resolvePLAux(self, pl):
+    def _resolvePLAux(self, pl, estaEmFPI):
         plAux = self.__transformaCNaVersaoDaAuxiliar(pl)
 
         #A plAux está sem tratar B negativo e sem A com colunas das var. Artificiais
         #O solver já cria o TableauxAux
-        return TableauxPLAuxSolver(plAux, pl.getC())
+        return TableauxPLAuxSolver(plAux, pl.getC(), not estaEmFPI)
 
     def __transformaCNaVersaoDaAuxiliar(self,pl):
         plAux = pl.copia()
@@ -77,10 +93,10 @@ class Simplex():
 
         return plAux
 
-    def __gerarTableauxResolvido(self, tableaux):
+    def __gerarTableauxResolvido(self, tableaux, estaEmFPI):
         my_tableaux = TableauxSolver()
-        my_tableaux.comBaseNoTableaux(tableaux)
-        my_tableaux.resolver()
+        my_tableaux.comBaseNoTableaux(tableaux, not estaEmFPI)
+        my_tableaux.resolver(not estaEmFPI)
         return my_tableaux
 
     def imprimeTudo(self):
@@ -99,9 +115,18 @@ class Simplex():
             print("{}".format(self._stringVetor(self.tableauxFinal.getSolucaoViavel())))
             print(self._stringVetor(self.tableauxFinal.getCertificadoIlimitada()))
     
+    def getCertificadoOtima(self):
+        return self._stringVetor(self.tableauxFinal.getCertificadoOtima())
+    
+    def getSolucaoOtima(self):
+        return self._stringVetor(self.tableauxFinal.getSolucaoViavel())
+    
+    def getValorOtimo(self):
+        return self.tableauxFinal.getValorOtimo()
+    
     def _stringVetor(self, vetor):
         saida = ""
-        saida +="{0:.7f}".format(vetor[0])
+        saida +="{0:.0f}".format(vetor[0])
         for i in range(1,vetor.shape[0]):
-            saida +=" {0:.7f}".format(vetor[i])
+            saida +=" {0:.0f}".format(vetor[i])
         return saida

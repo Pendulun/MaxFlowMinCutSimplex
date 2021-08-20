@@ -8,9 +8,9 @@ class TableauxPLAuxSolver(TableauxSolver):
 
     PRECISAO = 0.0001
 
-    def __init__(self, pl, cOriginal):
+    def __init__(self, pl, cOriginal, colocouEmFPI):
         super().__init__()
-        self.comBaseNaPl(pl)
+        self.comBaseNaPl(pl, colocouEmFPI)
         self._tableaux = TableauxAux()
         self._tableaux.setPLECOriginal(pl, cOriginal)
 
@@ -91,7 +91,6 @@ class TableauxPLAuxSolver(TableauxSolver):
         novoA = self._tableaux.getMatrizA()
 
         indexColunaInicialVarArtificiais = novoC.shape[0] - self._tableaux.numRestricoes()
-
         novoC = np.delete(novoC, np.s_[indexColunaInicialVarArtificiais:], 0)
         novoA = np.delete(novoA, np.s_[indexColunaInicialVarArtificiais:], 1)
 

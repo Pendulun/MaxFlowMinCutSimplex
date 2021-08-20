@@ -7,22 +7,26 @@ from tableaux import Tableaux
 class TableauxSolver():
     PRECISAO = 0.0001
 
-    def comBaseNaPl(self, pl):
+    def comBaseNaPl(self, pl, colocouEmFPI):
         self._tableaux = Tableaux()
         self._tableaux.setPL(pl)
-        self._defineEstadoInicial()
+        self._defineEstadoInicial(colocouEmFPI)
     
-    def comBaseNoTableaux(self, tableaux):
+    def comBaseNoTableaux(self, tableaux, colocouEmFPI):
         self._tableaux = tableaux
-        self._defineEstadoInicial()
+        self._defineEstadoInicial(colocouEmFPI)
     
-    def _defineEstadoInicial(self):
+    def _defineEstadoInicial(self, colocouEmFPI):
         self._solucaoViavel = np.zeros(self._tableaux.numVariaveisC())
         self._isViavel = False
         self._isIlimitada = False
         self._isOtimo = False
         self.__indexColunasBaseDict = {}
-        self._indexColunaInicialVarFolga = self._tableaux.numVariaveisC() - self._tableaux.numRestricoes()
+        if colocouEmFPI:
+            self._indexColunaInicialVarFolga = self._tableaux.numVariaveisC() - self._tableaux.numRestricoes()
+        else:
+            self._indexColunaInicialVarFolga = self._tableaux.numVariaveisC()//2
+            print("indexColuna: {}".format(self._indexColunaInicialVarFolga))
         self._certificadoIlimitada = np.zeros(self._indexColunaInicialVarFolga)
 
     def imprimirTudo(self):
@@ -34,13 +38,12 @@ class TableauxSolver():
         print("Solução Viável: {}".format(self._solucaoViavel))
         print("Certificado Ilimitada: {}".format(self._certificadoIlimitada))
         
-    def resolver(self):
+    def resolver(self, colocouEmFPI):
 
         #Não preciso verificar B negativo pois já foi feito no Tableaux Aux
         self._trataCNegativo()
 
-        self._produzSolucaoViavel()
-        #Não sei se isso está certo
+        self._produzSolucaoViavel(colocouEmFPI)
         if self._isIlimitada:
             self._isOtimo = False
             self._isViavel = True
@@ -58,10 +61,16 @@ class TableauxSolver():
             indexColunaNaBase = self.__indexColunasBaseDict.get(i,-1)
             if(indexColunaNaBase != -1):
                 self._certificadoIlimitada[indexColunaNaBase] = -1*colunaTodaNegativa[i]
+    
+    def _getVetorSolucaoZerado(self, colocouEmFPI):
+        if colocouEmFPI:
+            return np.zeros(self._tableaux.numVariaveisC()-self._tableaux.numRestricoes())
+        else:
+            return np.zeros(self._indexColunaInicialVarFolga)
 
-    def _produzSolucaoViavel(self):
+    def _produzSolucaoViavel(self, colocouEmFPI):
         matrizCanonica = np.eye(self._tableaux.numRestricoes())
-        self._solucaoViavel = np.zeros(self._tableaux.numVariaveisC()-self._tableaux.numRestricoes())
+        self._solucaoViavel = self._getVetorSolucaoZerado(colocouEmFPI)
         for i in range(self._indexColunaInicialVarFolga):
             if self._colunaEstaNaBase(i, matrizCanonica):
                 indexElementoUm = self._getIndexElementoUm(self._tableaux._matrizA[:,i])

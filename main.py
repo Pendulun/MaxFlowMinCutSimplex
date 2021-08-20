@@ -19,7 +19,7 @@ def popular_vetor_c(matrizIncidencia):
     O vetor c da PL é igual à linha relativa ao vértice "s" na matriz de incidência acrescentado do mesmo
     número de zeros, efetivamente dobrando o tamanho da linha
     """
-    c = matrizIncidencia[0]
+    c = matrizIncidencia[0]*-1
     c = np.concatenate((c,np.zeros(c.shape[0])), axis=0)
     return c
 
@@ -44,7 +44,7 @@ def popular_vetor_b(num_vertices_intermediarios, capacidades):
     |   1's |
     | cap's |
     """
-    vetor_uns = np.ones(num_vertices_intermediarios)
+    vetor_uns = np.zeros(num_vertices_intermediarios)
     b = np.concatenate((vetor_uns, capacidades), axis = 0)
     return b
 
@@ -58,11 +58,15 @@ def main():
     b = popular_vetor_b(matriz_incidencia.shape[0]-2, capacidades)
     print("Vetor b gerado:\n{}".format(b))
 
-    """
     my_simplex = Simplex(c,b,restricoes)
-    my_simplex.resolver(False)
-    my_simplex.imprimeResultado()
-    """
+    estaEmFPI = True
+    my_simplex.resolver(estaEmFPI)
+    
+    print(my_simplex.getValorOtimo())
+    solucaoOtima = my_simplex.getSolucaoOtima()
+    print(solucaoOtima)
+    certificadoOtima = my_simplex.getCertificadoOtima() 
+    print(certificadoOtima)
     
     
 if __name__ == '__main__':
