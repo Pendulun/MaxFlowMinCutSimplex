@@ -48,26 +48,35 @@ def popular_vetor_b(num_vertices_intermediarios, capacidades):
     b = np.concatenate((vetor_uns, capacidades), axis = 0)
     return b
 
+def produzVetorMinCut(certifcado, numVertices):
+    """
+    O vértice 's' com certeza faz parte do corte mínimo. O vértice 't' com certeza não faz.
+    Sendo 'n' o número de vértices != {s,t}, os 'n' primeiros números do certificado de otimalidade
+    da PL primal correspondem aos outros 'n' vértices do grafo. Dessa forma, podemos construir
+    um vetor dos vértices pertecentes ao corte mínimo com essas informações
+    """
+    min_cut = np.zeros(numVertices)
+    min_cut[0] = 1
+    min_cut[1:-1] = certifcado[:numVertices-2]
+    return min_cut
+
 def main():
     
     capacidades,matriz_incidencia=leEntrada()
     c = popular_vetor_c(matriz_incidencia)
-    print("Vetor C:\n{}".format(c))
     restricoes = popular_matriz_restricoes(matriz_incidencia)
-    print("Matriz Restricoes:\n{}".format(restricoes))
     b = popular_vetor_b(matriz_incidencia.shape[0]-2, capacidades)
-    print("Vetor b gerado:\n{}".format(b))
 
     my_simplex = Simplex(c,b,restricoes)
     estaEmFPI = True
     my_simplex.resolver(estaEmFPI)
     
-    print(my_simplex.getValorOtimo())
+    print(int(my_simplex.getValorOtimo()))
     solucaoOtima = my_simplex.getSolucaoOtima()
     print(solucaoOtima)
-    certificadoOtima = my_simplex.getCertificadoOtima() 
-    print(certificadoOtima)
-    
+    certificadoOtima = my_simplex.getVetorCertificadoOtima() 
+    min_cut = produzVetorMinCut(certificadoOtima, matriz_incidencia.shape[0])
+    print(my_simplex.stringVetor(min_cut))
     
 if __name__ == '__main__':
     main()

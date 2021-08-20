@@ -31,6 +31,10 @@ class Tableaux():
         self._matrizA = pl.getRestricoes()
         self._vetorB = pl.getB()
     
+    def alterarTamCertificadoOtimo(self, tam):
+        self._certificadoOtimo = np.zeros(tam)
+        self._matrizTransformacoes = np.identity(tam)
+    
     def copiaDoTableaux(self,tableaux):
         self._valorOtimo = tableaux.getValorOtimo()
         self._certificadoOtimo = tableaux.getCertificadoOtimo()

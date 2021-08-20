@@ -26,7 +26,6 @@ class TableauxSolver():
             self._indexColunaInicialVarFolga = self._tableaux.numVariaveisC() - self._tableaux.numRestricoes()
         else:
             self._indexColunaInicialVarFolga = self._tableaux.numVariaveisC()//2
-            print("indexColuna: {}".format(self._indexColunaInicialVarFolga))
         self._certificadoIlimitada = np.zeros(self._indexColunaInicialVarFolga)
 
     def imprimirTudo(self):

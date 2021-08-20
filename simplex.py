@@ -15,7 +15,7 @@ class Simplex():
     max c_T*X
     sujeito a AX = B X >=0
     aplicando  o algoritmo Simplex. Para escolher entre os dois tipos de PL, o parâmetro bool
-    'colocarEmFPI' do método resolver deve ser indicado corretamente
+    'estaEmFPI' do método resolver deve ser indicado corretamente
     """
     OTIMA = "otima"
     INVIAVEL = "inviavel"
@@ -35,6 +35,14 @@ class Simplex():
             return self.__pl
             
     def resolver(self, estaEmFPI):
+        """
+        estaEmFPI = True = Estamos resolvendo o problema do Max-Flow/Min-Cut com uma PL no formato:
+        max c_T*X
+        sujeito a AX = B X >=0
+        estaEmFPI = False = Estamos resolvendo uma PL do formato:
+        max c_T*X
+        sujeito a AX <= b e X>=0
+        """
         
         pl = self._getPL(estaEmFPI)
         if not estaEmFPI:
@@ -49,7 +57,6 @@ class Simplex():
                 tableaux_parte_2 = Tableaux()
                 tableaux_parte_2.setPL(pl)
             tableaux_pl = self.__gerarTableauxResolvido(tableaux_parte_2, estaEmFPI)
-            #tableaux_pl.imprimirTudo()
 
             if tableaux_pl.isOtima():
                 self.__estadoFinal = self.OTIMA
@@ -106,25 +113,25 @@ class Simplex():
     def imprimeResultado(self):
         print("{}".format(self.__estadoFinal))
         if self.__estadoFinal == self.INVIAVEL:
-            print("{}".format(self._stringVetor(self.tableauxFinal.getCertificadoOtimo())))
+            print("{}".format(self.stringVetor(self.tableauxFinal.getCertificadoOtimo())))
         elif self.__estadoFinal == self.OTIMA:
             print("{}".format(self.tableauxFinal.getValorOtimo()))
-            print(self._stringVetor(self.tableauxFinal.getSolucaoViavel()))
-            print(self._stringVetor(self.tableauxFinal.getCertificadoOtima()))
+            print(self.stringVetor(self.tableauxFinal.getSolucaoViavel()))
+            print(self.stringVetor(self.tableauxFinal.getCertificadoOtima()))
         elif self.__estadoFinal == self.ILIMITADA:
-            print("{}".format(self._stringVetor(self.tableauxFinal.getSolucaoViavel())))
-            print(self._stringVetor(self.tableauxFinal.getCertificadoIlimitada()))
+            print("{}".format(self.stringVetor(self.tableauxFinal.getSolucaoViavel())))
+            print(self.stringVetor(self.tableauxFinal.getCertificadoIlimitada()))
     
-    def getCertificadoOtima(self):
-        return self._stringVetor(self.tableauxFinal.getCertificadoOtima())
+    def getVetorCertificadoOtima(self):
+        return self.tableauxFinal.getCertificadoOtima().copy()
     
     def getSolucaoOtima(self):
-        return self._stringVetor(self.tableauxFinal.getSolucaoViavel())
+        return self.stringVetor(self.tableauxFinal.getSolucaoViavel())
     
     def getValorOtimo(self):
         return self.tableauxFinal.getValorOtimo()
     
-    def _stringVetor(self, vetor):
+    def stringVetor(self, vetor):
         saida = ""
         saida +="{0:.0f}".format(vetor[0])
         for i in range(1,vetor.shape[0]):
